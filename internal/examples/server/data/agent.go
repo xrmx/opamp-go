@@ -77,9 +77,10 @@ func NewAgent(
 		}
 	}
 
-	// Initialize with default config if provided
+	// Initialize with default config if provided.
+	// The empty string key is used for single config file scenarios.
 	if defaultConfig != nil && defaultConfig.ConfigMap != nil {
-		if configFile, ok := defaultConfig.ConfigMap[""]; ok {
+		if configFile, ok := defaultConfig.ConfigMap[""]; ok && configFile != nil {
 			agent.CustomInstanceConfig = string(configFile.Body)
 		}
 	}

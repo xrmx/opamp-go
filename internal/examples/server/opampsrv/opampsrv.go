@@ -17,12 +17,13 @@ import (
 )
 
 type Server struct {
-	opampSrv server.OpAMPServer
-	agents   *data.Agents
-	logger   *Logger
+	opampSrv      server.OpAMPServer
+	agents        *data.Agents
+	logger        *Logger
+	defaultConfig *protobufs.AgentConfigMap
 }
 
-func NewServer(agents *data.Agents) *Server {
+func NewServer(agents *data.Agents, defaultConfig *protobufs.AgentConfigMap) *Server {
 	logger := &Logger{
 		log.New(
 			log.Default().Writer(),
@@ -32,8 +33,9 @@ func NewServer(agents *data.Agents) *Server {
 	}
 
 	srv := &Server{
-		agents: agents,
-		logger: logger,
+		agents:        agents,
+		logger:        logger,
+		defaultConfig: defaultConfig,
 	}
 
 	srv.opampSrv = server.New(logger)
@@ -104,7 +106,7 @@ func (srv *Server) onMessage(ctx context.Context, conn types.Connection, msg *pr
 		return response
 	}
 
-	agent := srv.agents.FindOrCreateAgent(instanceId, conn)
+	agent := srv.agents.FindOrCreateAgent(instanceId, conn, srv.defaultConfig)
 
 	// Process the status report and continue building the response.
 	agent.UpdateStatus(msg, response)

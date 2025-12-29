@@ -61,6 +61,7 @@ type Agent struct {
 func NewAgent(
 	instanceId InstanceId,
 	conn types.Connection,
+	defaultConfig *protobufs.AgentConfigMap,
 ) *Agent {
 	agent := &Agent{InstanceId: instanceId, InstanceIdStr: uuid.UUID(instanceId).String(), conn: conn}
 	tslConn, ok := conn.Connection().(*tls.Conn)
@@ -73,6 +74,13 @@ func NewAgent(
 			fingerprint := sha256.Sum256(leafClientCert.Raw)
 			agent.ClientCert = leafClientCert
 			agent.ClientCertSha256Fingerprint = fmt.Sprintf("%X", fingerprint)
+		}
+	}
+
+	// Initialize with default config if provided
+	if defaultConfig != nil && defaultConfig.ConfigMap != nil {
+		if configFile, ok := defaultConfig.ConfigMap[""]; ok {
+			agent.CustomInstanceConfig = string(configFile.Body)
 		}
 	}
 

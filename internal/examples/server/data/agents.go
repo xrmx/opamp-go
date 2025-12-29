@@ -72,14 +72,14 @@ func (agents *Agents) FindAgent(agentId InstanceId) *Agent {
 	return agents.agentsById[agentId]
 }
 
-func (agents *Agents) FindOrCreateAgent(agentId InstanceId, conn types.Connection) *Agent {
+func (agents *Agents) FindOrCreateAgent(agentId InstanceId, conn types.Connection, defaultConfig *protobufs.AgentConfigMap) *Agent {
 	agents.mux.Lock()
 	defer agents.mux.Unlock()
 
 	// Ensure the Agent is in the agentsById map.
 	agent := agents.agentsById[agentId]
 	if agent == nil {
-		agent = NewAgent(agentId, conn)
+		agent = NewAgent(agentId, conn, defaultConfig)
 		agents.agentsById[agentId] = agent
 
 		// Ensure the Agent's instance id is associated with the connection.
